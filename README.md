@@ -2,7 +2,7 @@
 
 This is basic PoC showing how minipool validator keys could be split among oDAO members
 
-# How do I run this?
+# How do I run it?
 
 ```sh
 docker build -t rocketpool-split-keys .
