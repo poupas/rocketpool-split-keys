@@ -1,6 +1,6 @@
 ## What is this?
 
-This is basic PoC showing how minipool validator keys could be split among oDAO members
+This is basic PoC showing how minipool validator keys could be split among oDAO members, through the use of threshold encryption.
 
 ## How do I run it?
 
