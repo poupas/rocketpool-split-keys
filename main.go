@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/herumi/bls-eth-go-binary/bls"
 	"github.com/poupas/rocketpool-split-keys/threshold"
@@ -88,16 +90,22 @@ func (odao *ODAO) distributeKeyShares(minipoolAddress string, shares map[uint64]
 	}
 }
 
-// Check if the validator key shares for a given minipool match the key set in the minipool contract
+// Check if the validator key shares for a given minipool match the key in the minipool contract
 // In a real setting, ODAO members would coordinate among themselves to perform the verification
 // Members would create sub-groups of ODAOKeySharesThreshold elements to ensure
 // that the aggregated public key matches the key specified in the minipool contract
-// For the purpose of this PoC, just check if using the first ODAOKeySharesThreshold keys
+// For the purpose of this PoC, choose 'ODAOKeySharesThreshold' members at random to verify the shares
 func (odao *ODAO) verifyKeyShares(minipoolAddress string) {
 	// Gather the required key shares to recover the public key
 	keyShares := make(map[uint64]*bls.SecretKey)
-	for i, member := range odao.members {
-		keyShares[member.id] = member.keyShares[minipoolAddress]
+	fmt.Printf("Will try to recover validator key using %d shares...\n", ODAOKeySharesThreshold)
+	// Choose the ODAO verifiers randomly
+	rand.Seed(time.Now().UTC().UnixNano())
+	for i, mi := range rand.Perm(len(odao.members)) {
+		member := odao.members[mi]
+		keyShare := member.keyShares[minipoolAddress]
+		fmt.Printf("Using ODAO member %2d key share: %s\n", member.id, keyShare.GetHexString())
+		keyShares[member.id] = keyShare
 		if i == ODAOKeySharesThreshold-1 {
 			break
 		}
@@ -117,8 +125,8 @@ func (odao *ODAO) verifyKeyShares(minipoolAddress string) {
 	}
 
 	// Everything checks out. Allow the minipool to start staking
-	fmt.Printf("Successfully verified public key.\nRecovered public key: %s\nContract key: %s\n",
-		aggregatePubKey.GetHexString(), mp.validatorPubKey)
+	fmt.Printf("Successfully verified key shares.\nRecovered key:\t%s[...]\nContract key:\t%s[...]\n",
+		aggregatePubKey.GetHexString()[:64], mp.validatorPubKey[:64])
 	mp.acceptValidatorKey()
 }
 
@@ -167,8 +175,8 @@ func main() {
 	mp := newMinipool("0xdeadbeef")
 	// "Deploy" the minipool smart contract
 	minipoolContracts[mp.contract.address] = &mp.contract
-	fmt.Printf("Created minipool. Address: %s, Validator pubkey: %s",
-		mp.contract.address, mp.contract.validatorPubKey)
+	fmt.Printf("Created minipool. Address: %s, Validator pubkey: %s[...]\n",
+		mp.contract.address, mp.contract.validatorPubKey[:64])
 
 	// Share the minipool validator key among the ODAO members
 	keyShares, err := mp.SplitValidatorKey()
