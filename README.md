@@ -1,15 +1,15 @@
-# What is this?
+## What is this?
 
 This is basic PoC showing how minipool validator keys could be split among oDAO members
 
-# How do I run this?
+## How do I run it?
 
 ```sh
 docker build -t rocketpool-split-keys .
 docker run --rm -ti rocketpool-split-keys
 ```
 
-# Sample run
+## Sample run output
 
 ```
 Created minipool. Address: 0xdeadbeef, Validator pubkey: 1 1250ddbb2aa5d57ae756540362ad4efb4257ebb50add28d80a7bbc3f6d9ec3[...]
