@@ -67,7 +67,7 @@ type ODAOMember struct {
 	// Validator key share for each minipool
 	keyShares map[string]*bls.SecretKey
 
-	// TODO: encrypt key shares sent to validators with a modern encryption algorithm. e.g. X25519
+	// TODO: encrypt key shares before sending them to the ODAO members
 	// pubKey X25519PubKey
 	// secretKey X25519PrivKey
 }
